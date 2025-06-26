@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diamond Hunt Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>Diamond Hunt</h1>
+        <div class="game-panel">
+            <div class="game-controls">
+                <div class="credits-container">
+                    <label for="credits">Credits:</label>
+                    <span id="credits">1000</span>
+                </div>
+                <div class="bet-container">
+                    <label for="bet">Bet Amount:</label>
+                    <input type="number" id="bet" min="1" value="10">
+                </div>
+                <div class="bombs-container">
+                    <label for="bombs">Bombs (2-5):</label>
+                    <input type="number" id="bombs" min="2" max="5" value="2">
+                </div>
+            </div>
+            <div class="game-info">
+                <p>Multiplier: <span id="multiplier">1.5x</span></p>
+                <p>Current Bet: <span id="current-bet">0</span></p>
+                <p>Potential Win: <span id="potential-win">0</span></p>
+                <button id="start-game">Start New Game</button>
+                <button id="cash-out" disabled>Cash Out</button>
+            </div>
+            <div id="game-grid"></div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
