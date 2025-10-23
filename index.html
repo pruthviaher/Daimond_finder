@@ -3,136 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diamond Hunt Game - Enhanced Edition</title>
+    <title>Diamond Hunt</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="game-container">
-        <div class="header">
-            <h1>Diamond Hunt</h1>
-            <button id="sound-toggle" class="sound-toggle" title="Toggle Sound">🔊</button>
+    <!-- Header -->
+    <header class="header">
+        <button class="icon-btn" id="stats-btn" title="Statistics">📊</button>
+        <h1>💎 Diamond Hunt</h1>
+        <div class="header-right">
+            <button class="icon-btn" id="settings-btn" title="Settings">⚙️</button>
+            <button class="icon-btn" id="sound-btn" title="Toggle Sound">🔊</button>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="game-container">
+        <!-- Message Banner -->
+        <div id="game-message" class="message" style="display: none;"></div>
+
+        <!-- Credits Display -->
+        <div class="credits-bar">
+            <span class="credits-label">Credits:</span>
+            <span id="credits" class="credits-value">1000</span>
         </div>
 
-        <div id="game-message" class="game-message" style="display: none;"></div>
+        <!-- Quick Controls -->
+        <div class="quick-controls">
+            <select id="difficulty" class="control-input">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+                <option value="extreme">Extreme</option>
+                <option value="custom" selected>Custom</option>
+            </select>
 
-        <div class="game-panel">
-            <!-- Statistics Panel -->
-            <div class="stats-panel">
-                <h3>Your Statistics</h3>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <span class="stat-label">Games Played</span>
-                        <span class="stat-value" id="games-played">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Win Rate</span>
-                        <span class="stat-value" id="win-rate">0.0%</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Win Streak</span>
-                        <span class="stat-value" id="win-streak">0 (Best: 0)</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Best Win</span>
-                        <span class="stat-value" id="best-win">0</span>
-                    </div>
+            <input type="number" id="bet" class="control-input" min="1" value="10" placeholder="Bet">
+
+            <select id="grid-size" class="control-input">
+                <option value="16" selected>4×4</option>
+                <option value="25">5×5</option>
+                <option value="36">6×6</option>
+            </select>
+
+            <input type="number" id="bombs" class="control-input" min="2" max="6" value="2" placeholder="Bombs">
+        </div>
+
+        <!-- Game Info Bar -->
+        <div class="info-bar">
+            <div class="info-item">
+                <span class="info-label">Multiplier</span>
+                <span id="multiplier" class="info-value">2.3x</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Bet</span>
+                <span id="current-bet" class="info-value">0</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Win</span>
+                <span id="potential-win" class="info-value">0</span>
+            </div>
+        </div>
+
+        <!-- Game Grid -->
+        <div id="game-grid" class="game-grid"></div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button id="start-game" class="btn btn-primary">Start Game</button>
+            <button id="cash-out" class="btn btn-secondary" disabled>Cash Out</button>
+        </div>
+
+        <!-- Power-ups -->
+        <div class="powerups-bar">
+            <button id="use-scanner" class="powerup-btn" disabled title="Scanner: See adjacent bombs">
+                🔍 <span id="scanner-count">1</span>
+            </button>
+            <button id="use-2x" class="powerup-btn" disabled title="2x Multiplier">
+                ✨ <span id="2x-count">1</span>
+            </button>
+            <button id="use-safe-zone" class="powerup-btn" disabled title="Reveal safe cell">
+                🛡️ <span id="safe-zone-count">1</span>
+            </button>
+        </div>
+    </main>
+
+    <!-- Statistics Modal -->
+    <div id="stats-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Statistics</h2>
+                <button class="close-btn" data-modal="stats-modal">×</button>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="games-played">0</div>
+                    <div class="stat-label">Played</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="win-rate">0%</div>
+                    <div class="stat-label">Win Rate</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="win-streak">0</div>
+                    <div class="stat-label">Streak</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="best-win">0</div>
+                    <div class="stat-label">Best Win</div>
                 </div>
             </div>
 
-            <!-- Game Controls -->
-            <div class="game-controls">
-                <div class="credits-container">
-                    <label for="credits">Credits:</label>
-                    <span id="credits" class="credits-display">1000</span>
-                </div>
-
-                <div class="control-group">
-                    <label for="difficulty">Difficulty:</label>
-                    <select id="difficulty">
-                        <option value="easy">Easy (4x4, 2 bombs)</option>
-                        <option value="medium">Medium (5x5, 5 bombs)</option>
-                        <option value="hard">Hard (6x6, 8 bombs)</option>
-                        <option value="extreme">Extreme (6x6, 12 bombs)</option>
-                        <option value="custom" selected>Custom</option>
-                    </select>
-                </div>
-
-                <div class="control-group">
-                    <label for="grid-size">Grid Size:</label>
-                    <select id="grid-size">
-                        <option value="16" selected>4x4 (16 cells)</option>
-                        <option value="25">5x5 (25 cells)</option>
-                        <option value="36">6x6 (36 cells)</option>
-                    </select>
-                </div>
-
-                <div class="control-group">
-                    <label for="bet">Bet Amount:</label>
-                    <input type="number" id="bet" min="1" value="10">
-                </div>
-
-                <div class="control-group">
-                    <label for="bombs">Bombs:</label>
-                    <input type="number" id="bombs" min="2" max="6" value="2">
-                </div>
+            <h3 class="section-title">Recent Games</h3>
+            <div id="game-history" class="history-list">
+                <p class="empty-state">No games played yet</p>
             </div>
 
-            <!-- Game Info -->
-            <div class="game-info">
-                <div class="info-row">
-                    <span>Multiplier: <strong id="multiplier">1.5x</strong></span>
-                    <span>Current Bet: <strong id="current-bet">0</strong></span>
-                    <span>Potential Win: <strong id="potential-win">0</strong></span>
-                </div>
-
-                <div class="button-row">
-                    <button id="start-game" class="btn-primary">Start New Game</button>
-                    <button id="cash-out" class="btn-secondary" disabled>Cash Out</button>
-                </div>
-            </div>
-
-            <!-- Power-ups Panel -->
-            <div class="powerups-panel">
-                <h3>Power-Ups</h3>
-                <div class="powerups-grid">
-                    <button id="use-scanner" class="powerup-btn" disabled>
-                        <span class="powerup-icon">🔍</span>
-                        <span class="powerup-name">Scanner</span>
-                        <span class="powerup-count" id="scanner-count">0</span>
-                    </button>
-                    <button id="use-2x" class="powerup-btn" disabled>
-                        <span class="powerup-icon">✨</span>
-                        <span class="powerup-name">2x Multiplier</span>
-                        <span class="powerup-count" id="2x-count">0</span>
-                    </button>
-                    <button id="use-safe-zone" class="powerup-btn" disabled>
-                        <span class="powerup-icon">🛡️</span>
-                        <span class="powerup-name">Safe Zone</span>
-                        <span class="powerup-count" id="safe-zone-count">0</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Game Grid -->
-            <div id="game-grid" class="game-grid"></div>
-
-            <!-- Game History -->
-            <div class="history-panel">
-                <h3>Recent Games</h3>
-                <div id="game-history" class="history-list">
-                    <p class="no-history">No games played yet</p>
-                </div>
-            </div>
-
-            <!-- Leaderboard -->
-            <div class="leaderboard-panel">
-                <h3>Top Wins</h3>
-                <div id="leaderboard" class="leaderboard-list">
-                    <p class="no-history">No high scores yet</p>
-                </div>
+            <h3 class="section-title">Leaderboard</h3>
+            <div id="leaderboard" class="leaderboard-list">
+                <p class="empty-state">No high scores yet</p>
             </div>
         </div>
     </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="close-btn" data-modal="settings-modal">×</button>
+            </div>
+            <div class="settings-content">
+                <div class="setting-item">
+                    <span>Sound Effects</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="sound-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <span>Haptic Feedback</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="haptic-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <button id="reset-progress" class="btn btn-danger">Reset Progress</button>
+            </div>
+        </div>
+    </div>
+
     <script src="game.js"></script>
 </body>
 </html>
