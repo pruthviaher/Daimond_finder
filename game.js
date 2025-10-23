@@ -27,7 +27,9 @@ class DiamondHuntGame {
         this.multiplierElement = document.getElementById('multiplier');
         this.currentBetElement = document.getElementById('current-bet');
         this.potentialWinElement = document.getElementById('potential-win');
-        this.soundToggle = document.getElementById('sound-toggle');
+        this.soundToggleInput = document.getElementById('sound-toggle');
+        this.hapticToggleInput = document.getElementById('haptic-toggle');
+        this.soundBtn = document.getElementById('sound-btn');
 
         // Statistics elements
         this.gamesPlayedElement = document.getElementById('games-played');
@@ -40,6 +42,10 @@ class DiamondHuntGame {
         this.multiplier2xBtn = document.getElementById('use-2x');
         this.safeZoneBtn = document.getElementById('use-safe-zone');
 
+        // Modal elements
+        this.statsModal = document.getElementById('stats-modal');
+        this.settingsModal = document.getElementById('settings-modal');
+
         // Initialize sound effects
         this.sounds = {
             diamond: this.createSound([523.25, 659.25], 0.1, 'sine'),
@@ -48,6 +54,7 @@ class DiamondHuntGame {
             powerup: this.createSound([880, 1046.5], 0.15, 'triangle')
         };
         this.soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
+        this.hapticEnabled = localStorage.getItem('hapticEnabled') !== 'false';
 
         // Event listeners
         this.startButton.addEventListener('click', () => this.startNewGame());
@@ -58,12 +65,28 @@ class DiamondHuntGame {
         });
         this.difficultySelect.addEventListener('change', () => this.applyDifficulty());
         this.cashOutButton.addEventListener('click', () => this.confirmCashOut());
-        this.soundToggle.addEventListener('click', () => this.toggleSound());
+
+        // Settings toggles
+        this.soundToggleInput.addEventListener('change', () => this.toggleSound());
+        this.hapticToggleInput.addEventListener('change', () => this.toggleHaptic());
 
         // Power-up event listeners
         this.scannerBtn.addEventListener('click', () => this.activatePowerUp('scanner'));
         this.multiplier2xBtn.addEventListener('click', () => this.activatePowerUp('multiplier2x'));
         this.safeZoneBtn.addEventListener('click', () => this.activatePowerUp('safeZone'));
+
+        // Modal event listeners
+        document.getElementById('stats-btn').addEventListener('click', () => this.openModal('stats-modal'));
+        document.getElementById('settings-btn').addEventListener('click', () => this.openModal('settings-modal'));
+        document.querySelectorAll('.close-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.closeModal(e.target.dataset.modal));
+        });
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) this.closeModal(modal.id);
+            });
+        });
+        document.getElementById('reset-progress').addEventListener('click', () => this.resetProgress());
 
         // Initialize the game
         this.updateGridSize();
@@ -73,7 +96,9 @@ class DiamondHuntGame {
         this.updateLeaderboard();
         this.updateGameHistory();
         this.updatePowerUpDisplay();
-        this.updateSoundToggle();
+        this.updateSoundBtn();
+        this.soundToggleInput.checked = this.soundEnabled;
+        this.hapticToggleInput.checked = this.hapticEnabled;
     }
 
     loadGameData() {
@@ -180,19 +205,47 @@ class DiamondHuntGame {
         });
     }
 
-    toggleSound() {
-        this.soundEnabled = !this.soundEnabled;
-        localStorage.setItem('soundEnabled', this.soundEnabled);
-        this.updateSoundToggle();
+    openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('active');
+        }
     }
 
-    updateSoundToggle() {
-        this.soundToggle.textContent = this.soundEnabled ? '🔊' : '🔇';
-        this.soundToggle.title = this.soundEnabled ? 'Sound On' : 'Sound Off';
+    closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    toggleSound() {
+        this.soundEnabled = this.soundToggleInput.checked;
+        localStorage.setItem('soundEnabled', this.soundEnabled);
+        this.updateSoundBtn();
+    }
+
+    toggleHaptic() {
+        this.hapticEnabled = this.hapticToggleInput.checked;
+        localStorage.setItem('hapticEnabled', this.hapticEnabled);
+    }
+
+    updateSoundBtn() {
+        this.soundBtn.textContent = this.soundEnabled ? '🔊' : '🔇';
+        this.soundBtn.title = this.soundEnabled ? 'Sound On' : 'Sound Off';
+    }
+
+    resetProgress() {
+        if (confirm('Are you sure you want to reset all progress? This cannot be undone!')) {
+            localStorage.removeItem('diamondHuntSave');
+            localStorage.removeItem('soundEnabled');
+            localStorage.removeItem('hapticEnabled');
+            location.reload();
+        }
     }
 
     triggerHaptic(intensity = 'medium') {
-        if (navigator.vibrate) {
+        if (this.hapticEnabled && navigator.vibrate) {
             const patterns = {
                 light: 10,
                 medium: 20,
@@ -274,7 +327,7 @@ class DiamondHuntGame {
     showMessage(text, type = 'info') {
         const messageDiv = document.getElementById('game-message');
         messageDiv.textContent = text;
-        messageDiv.className = `game-message ${type}`;
+        messageDiv.className = `message ${type}`;
         messageDiv.style.display = 'block';
 
         setTimeout(() => {
@@ -597,7 +650,7 @@ class DiamondHuntGame {
 
         const recentGames = this.gameHistory.slice(0, 5);
         if (recentGames.length === 0) {
-            historyElement.innerHTML = '<p class="no-history">No games played yet</p>';
+            historyElement.innerHTML = '<p class="empty-state">No games played yet</p>';
             return;
         }
 
@@ -618,7 +671,7 @@ class DiamondHuntGame {
         leaderboardElement.innerHTML = '';
 
         if (this.leaderboard.length === 0) {
-            leaderboardElement.innerHTML = '<p class="no-history">No high scores yet</p>';
+            leaderboardElement.innerHTML = '<p class="empty-state">No high scores yet</p>';
             return;
         }
 
